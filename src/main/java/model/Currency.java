@@ -23,11 +23,11 @@ public class Currency {
         this.code = code;
     }
 
-    public String getfUllName() {
+    public String getFullName() {
         return fUllName;
     }
 
-    public void setfUllName(String fUllName) {
+    public void setFullName(String fUllName) {
         this.fUllName = fUllName;
     }
 
