@@ -31,8 +31,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
     public Optional<Currency> findByCode(String code) {
         String sql = "SELECT ID, Code, FullName, Sign FROM Currencies WHERE Code = ?";
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql)
-        ) {
+             PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, code);
             try (ResultSet rs = ps.executeQuery()) {
                 if (rs.next()) {
@@ -52,8 +51,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
         }
         String sql = "INSERT INTO Currencies(Code, FullName, Sign) VALUES (?, ?, ?)";
         try (Connection connection = DatabaseConnection.getConnection();
-             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-        ) {
+             PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, currency.getCode());
             ps.setString(2, currency.getFullName());
             ps.setString(3, currency.getSign());
