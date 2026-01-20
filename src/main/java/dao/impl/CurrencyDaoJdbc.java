@@ -13,7 +13,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
 
     @Override
     public List<Currency> findAll() {
-        String sql = "SELECT ID, Code, FullName, Sign FROM Currencies";
+        String sql = "SELECT ID, CODE, FULL_NAME, SIGN FROM CURRENCIES";
         List<Currency> result = new ArrayList<>();
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql);
@@ -29,7 +29,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
 
     @Override
     public Optional<Currency> findByCode(String code) {
-        String sql = "SELECT ID, Code, FullName, Sign FROM Currencies WHERE Code = ?";
+        String sql = "SELECT ID, CODE, FULL_NAME, SIGN FROM CURRENCIES WHERE CODE = ?";
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setString(1, code);
@@ -49,7 +49,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
         if (currency == null) {
             throw new IllegalArgumentException("Валюта не передана");
         }
-        String sql = "INSERT INTO Currencies(Code, FullName, Sign) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO CURRENCIES(CODE, FULL_NAME, SIGN) VALUES (?, ?, ?)";
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setString(1, currency.getCode());
@@ -74,9 +74,9 @@ public class CurrencyDaoJdbc implements CurrencyDao {
     private Currency mapRow(ResultSet rs) throws SQLException {
         Currency currency = new Currency();
         currency.setId(rs.getInt("ID"));
-        currency.setCode(rs.getString("Code"));
-        currency.setFullName(rs.getString("FullName"));
-        currency.setSign(rs.getString("Sign"));
+        currency.setCode(rs.getString("CODE"));
+        currency.setFullName(rs.getString("FULL_NAME"));
+        currency.setSign(rs.getString("SIGN"));
         return currency;
     }
 }

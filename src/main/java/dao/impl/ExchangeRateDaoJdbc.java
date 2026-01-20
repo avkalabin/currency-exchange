@@ -17,7 +17,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
     @Override
     public List<ExchangeRate> findAll() {
-        String sql = "SELECT ID, BaseCurrencyId, TargetCurrencyId, Rate FROM ExchangeRates";
+        String sql = "SELECT ID, BASE_CURRENCY_ID, TARGET_CURRENCY_ID, RATE FROM EXCHANGE_RATES";
         List<ExchangeRate> results = new ArrayList<>();
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql);
@@ -33,10 +33,10 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
     @Override
     public Optional<ExchangeRate> findByCurrencyCodes(String baseCode, String targetCode) {
-        String sql = "SELECT er.ID, er.BaseCurrencyId, er.TargetCurrencyId, er.Rate FROM ExchangeRates er " +
-                     "JOIN Currencies bc ON er.BaseCurrencyId = bc.ID " +
-                     "JOIN Currencies tc ON er.TargetCurrencyId = tc.ID " +
-                     "WHERE bc.Code = ? AND tc.Code = ?";
+        String sql = "SELECT er.ID, er.BASE_CURRENCY_ID, er.TARGET_CURRENCY_ID, er.RATE FROM EXCHANGE_RATES er " +
+                     "JOIN CURRENCIES bc ON er.BASE_CURRENCY_ID = bc.ID " +
+                     "JOIN CURRENCIES tc ON er.TARGET_CURRENCY_ID = tc.ID " +
+                     "WHERE bc.CODE = ? AND tc.CODE = ?";
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
 
@@ -55,7 +55,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
     @Override
     public ExchangeRate save(ExchangeRate exchangeRate) {
-        String sql = "INSERT INTO ExchangeRates (BaseCurrencyId, TargetCurrencyId, Rate) VALUES (?, ?, ?)";
+        String sql = "INSERT INTO EXCHANGE_RATES (BASE_CURRENCY_ID, TARGET_CURRENCY_ID, RATE) VALUES (?, ?, ?)";
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)) {
             ps.setInt(1, exchangeRate.getBaseCurrencyId());
@@ -79,7 +79,7 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
 
     @Override
     public void update(ExchangeRate exchangeRate) {
-        String sql = "UPDATE ExchangeRates SET BaseCurrencyId = ?, TargetCurrencyId = ?, Rate = ? WHERE ID = ?";
+        String sql = "UPDATE EXCHANGE_RATES SET BASE_CURRENCY_ID = ?, TARGET_CURRENCY_ID = ?, RATE = ? WHERE ID = ?";
         try (Connection connection = DatabaseConnection.getConnection();
              PreparedStatement ps = connection.prepareStatement(sql)) {
             ps.setInt(1, exchangeRate.getBaseCurrencyId());
@@ -99,9 +99,9 @@ public class ExchangeRateDaoJdbc implements ExchangeRateDao {
     private ExchangeRate mapRow(ResultSet rs) throws SQLException {
         ExchangeRate exchangeRate = new ExchangeRate();
         exchangeRate.setId(rs.getInt("ID"));
-        exchangeRate.setBaseCurrencyId(rs.getInt("BaseCurrencyId"));
-        exchangeRate.setTargetCurrencyId(rs.getInt("TargetCurrencyId"));
-        exchangeRate.setRate(rs.getDouble("Rate"));
+        exchangeRate.setBaseCurrencyId(rs.getInt("BASE_CURRENCY_ID"));
+        exchangeRate.setTargetCurrencyId(rs.getInt("TARGET_CURRENCY_ID"));
+        exchangeRate.setRate(rs.getDouble("RATE"));
         return exchangeRate;
     }
 }
