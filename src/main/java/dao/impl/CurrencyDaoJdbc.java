@@ -1,7 +1,7 @@
 package dao.impl;
 
 import dao.CurrencyDao;
-import dao.DatabaseConnection;
+import util.DatabaseConnection;
 import model.Currency;
 
 import java.sql.*;

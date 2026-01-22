@@ -1,6 +1,6 @@
 package dao.impl;
 
-import dao.DatabaseConnection;
+import util.DatabaseConnection;
 import dao.ExchangeRateDao;
 import model.ExchangeRate;
 
