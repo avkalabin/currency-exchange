@@ -22,6 +22,7 @@ public class DatabaseConnection {
     public static Connection getConnection() {
         try {
             if (connection == null || connection.isClosed()) {
+                Class.forName("org.sqlite.JDBC");
                 connection = DriverManager.getConnection(DB_URL);
                  connection.createStatement().execute("PRAGMA foreign_keys = ON");
                 logger.info("Подключение к SQLite успешно установлено");
@@ -31,7 +32,7 @@ public class DatabaseConnection {
                 isDbInitialized = true;
             }
             return connection;
-        } catch (SQLException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             logger.error("Не удалось установить подключение к базе данных");
             throw new RuntimeException(e);
         }
