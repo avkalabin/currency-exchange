@@ -4,7 +4,7 @@ public class Currency {
 
     private int id;
     private String code;
-    private String fullName;
+    private String name;
     private String sign;
 
     public int getId() {
@@ -24,11 +24,11 @@ public class Currency {
     }
 
     public String getFullName() {
-        return fullName;
+        return name;
     }
 
-    public void setFullName(String fUllName) {
-        this.fullName = fullName;
+    public void setName(String name) {
+        this.name = name;
     }
 
     public String getSign() {

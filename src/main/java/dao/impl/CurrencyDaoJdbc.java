@@ -75,7 +75,7 @@ public class CurrencyDaoJdbc implements CurrencyDao {
         Currency currency = new Currency();
         currency.setId(rs.getInt("ID"));
         currency.setCode(rs.getString("CODE"));
-        currency.setFullName(rs.getString("FULL_NAME"));
+        currency.setName(rs.getString("FULL_NAME"));
         currency.setSign(rs.getString("SIGN"));
         return currency;
     }

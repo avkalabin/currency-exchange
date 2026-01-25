@@ -11,7 +11,7 @@ public class ResponseUtil {
     private ResponseUtil() {
     }
 
-    public static void setErrorMessage(HttpServletResponse resp, Integer status, String message) throws IOException {
+    public static void setErrorResponse(HttpServletResponse resp, Integer status, String message) throws IOException {
         var error = new ErrorResponse(message);
         resp.setStatus(status);
         resp.setContentType("application/json");
