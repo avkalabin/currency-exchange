@@ -1,7 +1,7 @@
 package servlet;
 
 import com.google.gson.Gson;
-import dao.CurrencyRepository;
+import dao.CurrencyDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,12 +15,12 @@ import java.util.Map;
 @WebServlet("/currencies")
 public class CurrenciesServlet extends HttpServlet {
 
-    private final CurrencyRepository repository = new CurrencyRepository();
+    private final CurrencyDao currencyDao = new CurrencyDao();
     private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<Currency> currencies = repository.findAll();
+        List<Currency> currencies = currencyDao.findAll();
 
         resp.setContentType("application/json;charset=UTF-8");
         String json = gson.toJson(currencies);
@@ -41,7 +41,7 @@ public class CurrenciesServlet extends HttpServlet {
             return;
         }
 
-        Currency newCurrency = repository.create(name, code, sign);
+        Currency newCurrency = currencyDao.create(name, code, sign);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
         resp.setContentType("application/json;charset=UTF-8");

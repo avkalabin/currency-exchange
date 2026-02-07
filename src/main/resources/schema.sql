@@ -2,7 +2,7 @@ CREATE TABLE IF NOT EXISTS currencies (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
     name VARCHAR(100) NOT NULL,
     code VARCHAR(3) NOT NULL UNIQUE,
-    sign VARCHAR(10), NOT NULL
+    sign VARCHAR(10) NOT NULL
 );
 
 CREATE TABLE IF NOT EXISTS exchange_rates (
@@ -20,7 +20,7 @@ INSERT OR IGNORE INTO currencies (id, name, code, sign) VALUES
 (2, 'Euro', 'EUR', '€'),
 (3, 'Russian Ruble', 'RUB', '₽');
 
-INSERT OR IGNORE INTO exchange_rates (id,base_currency_id,target_currency_id,rate) VALUES
+INSERT OR IGNORE INTO exchange_rates (id, base_currency_id, target_currency_id, rate) VALUES
 (1, 1, 2, 0.9),
 (2, 2, 1, 1.1),
 (3, 1, 3, 90.0);

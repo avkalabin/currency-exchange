@@ -1,7 +1,7 @@
 package servlet;
 
 import com.google.gson.Gson;
-import dao.ExchangeRateRepository;
+import dao.ExchangeRateDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -15,12 +15,12 @@ import java.util.Map;
 @WebServlet("/exchangeRates")
 public class ExchangeRatesServlet extends HttpServlet {
 
-    private final ExchangeRateRepository repository = new ExchangeRateRepository();
+    private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
     private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<ExchangeRate> rates = repository.findAll();
+        List<ExchangeRate> rates = exchangeRateDao.findAll();
 
         resp.setContentType("application/json;charset=UTF-8");
         resp.getWriter().write(gson.toJson(rates));
@@ -54,11 +54,10 @@ public class ExchangeRatesServlet extends HttpServlet {
             return;
         }
 
-        ExchangeRate newRate = repository.create(baseCurrencyId, targetCurrencyId, rate);
+        ExchangeRate newRate = exchangeRateDao.create(baseCurrencyId, targetCurrencyId, rate);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
         resp.setContentType("application/json;charset=UTF-8");
         resp.getWriter().write(gson.toJson(newRate));
     }
-
 }

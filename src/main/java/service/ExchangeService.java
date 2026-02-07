@@ -1,7 +1,7 @@
 package service;
 
-import dao.CurrencyRepository;
-import dao.ExchangeRateRepository;
+import dao.CurrencyDao;
+import dao.ExchangeRateDao;
 import model.Currency;
 import model.ExchangeRate;
 
@@ -9,15 +9,15 @@ import java.util.Optional;
 
 public class ExchangeService {
 
-    private final CurrencyRepository currencyRepository = new CurrencyRepository();
-    private final ExchangeRateRepository rateRepository = new ExchangeRateRepository();
+    private final CurrencyDao currencyDao = new CurrencyDao();
+    private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
 
     public Optional<ExchangeRate> findRate(String fromCode, String toCode) {
-        Optional<Currency> fromCurrency = currencyRepository.findAll().stream()
+        Optional<Currency> fromCurrency = currencyDao.findAll().stream()
                 .filter(c -> c.code().equals(fromCode))
                 .findFirst();
 
-        Optional<Currency> toCurrency = currencyRepository.findAll().stream()
+        Optional<Currency> toCurrency = currencyDao.findAll().stream()
                 .filter(c -> c.code().equals(toCode))
                 .findFirst();
 
@@ -28,7 +28,7 @@ public class ExchangeService {
         int fromId = fromCurrency.get().id();
         int toId = toCurrency.get().id();
 
-        return rateRepository.findAll().stream()
+        return exchangeRateDao.findAll().stream()
                 .filter(r -> r.baseCurrencyId() == fromId && r.targetCurrencyId() == toId)
                 .findFirst();
     }
