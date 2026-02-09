@@ -36,7 +36,7 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         if (baseCurrencyIdParam == null || targetCurrencyIdParam == null || rateParam == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("error", "Missing required fields")));
+            resp.getWriter().write(gson.toJson(Map.of("message", "Отсутствует нужное поле формы")));
             return;
         }
 
@@ -50,7 +50,7 @@ public class ExchangeRatesServlet extends HttpServlet {
             rate = Double.parseDouble(rateParam);
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("error", "Invalid number format")));
+            resp.getWriter().write(gson.toJson(Map.of("message", "Недопустимый формат чисел в запросе")));
             return;
         }
 

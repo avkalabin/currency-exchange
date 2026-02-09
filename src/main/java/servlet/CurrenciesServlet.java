@@ -37,7 +37,7 @@ public class CurrenciesServlet extends HttpServlet {
 
         if (name == null || code == null || sign == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("error", "Missing required fields")));
+            resp.getWriter().write(gson.toJson(Map.of("message", "Отсутствует нужное поле формы")));
             return;
         }
 

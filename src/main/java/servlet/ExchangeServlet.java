@@ -28,7 +28,7 @@ public class ExchangeServlet extends HttpServlet {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.setContentType("application/json;charset=UTF-8");
             resp.getWriter().write(gson.toJson(
-                    Map.of("error", "Missing required query params: from, to, amount")
+                    Map.of("message", "Отсутствует нужное поле формы")
             ));
             return;
         }
@@ -38,14 +38,14 @@ public class ExchangeServlet extends HttpServlet {
             amount = Double.parseDouble(amountParam);
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("error", "Invalid amount format")));
+            resp.getWriter().write(gson.toJson(Map.of("message", "Недопустимый формат числа в запросе")));
             return;
         }
 
         Optional<ExchangeRate> rateOpt = exchangeService.findRate(fromParam, toParam);
         if (rateOpt.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("error", "Exchange rate not found")));
+            resp.getWriter().write(gson.toJson(Map.of("message", "Одна (или обе) валюта из валютной пары не существует в БД")));
             return;
         }
 

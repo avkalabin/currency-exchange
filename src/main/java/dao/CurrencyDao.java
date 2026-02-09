@@ -5,6 +5,7 @@ import model.Currency;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 public class CurrencyDao {
     public List<Currency> findAll() {
@@ -48,6 +49,28 @@ public class CurrencyDao {
 
         } catch (SQLException e) {
             throw new RuntimeException(e);
+        }
+    }
+
+    public Optional<Currency> findByCode(String code) {
+        String sql = "SELECT id, name, code, sign FROM currencies WHERE code = ?";
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)) {
+            pstmt.setString(1, code);
+
+            try (ResultSet rs = pstmt.executeQuery()) {
+                if (rs.next()) {
+                    return Optional.of(new Currency(
+                            rs.getInt("id"),
+                            rs.getString("name"),
+                            rs.getString("code"),
+                            rs.getString("sign")
+                    ));
+                }
+                return Optional.empty();
+            }
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to find currency by code: " + code, e);
         }
     }
 }
