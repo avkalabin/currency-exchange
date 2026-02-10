@@ -73,4 +73,19 @@ public class CurrencyDao {
             throw new RuntimeException("Failed to find currency by code: " + code, e);
         }
     }
+
+        public boolean existByCode(String code) {
+            String sql = "SELECT id, name, code, sign FROM currencies WHERE code = ?";
+
+            try (Connection conn = DatabaseManager.getConnection();
+                 PreparedStatement pstmt = conn.prepareStatement(sql)) {
+                pstmt.setString(1, code);
+
+                try (ResultSet rs = pstmt.executeQuery()) {
+                    return rs.next();
+                }
+            } catch (SQLException e) {
+                throw new RuntimeException("Failed to check currency existence", e);
+            }
+        }
 }

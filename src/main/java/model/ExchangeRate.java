@@ -2,8 +2,8 @@ package model;
 
 public record ExchangeRate(
         int id,
-        int baseCurrencyId,
-        int targetCurrencyId,
+        Currency baseCurrency,
+        Currency targetCurrency,
         double rate
 ) {
 }

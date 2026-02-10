@@ -29,7 +29,7 @@ public class ExchangeService {
         int toId = toCurrency.get().id();
 
         return exchangeRateDao.findAll().stream()
-                .filter(r -> r.baseCurrencyId() == fromId && r.targetCurrencyId() == toId)
+                .filter(r -> r.baseCurrency().id() == fromId && r.targetCurrency().id() == toId)
                 .findFirst();
     }
 

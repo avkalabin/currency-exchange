@@ -41,6 +41,12 @@ public class CurrenciesServlet extends HttpServlet {
             return;
         }
 
+        if (currencyDao.existByCode(code)) {
+            resp.setStatus(HttpServletResponse.SC_CONFLICT);
+            resp.getWriter().write(gson.toJson(Map.of("message", "Валюта с таким кодом уже существует")));
+            return;
+        }
+
         Currency newCurrency = currencyDao.create(name, code, sign);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
