@@ -6,6 +6,7 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.ExchangeRate;
+import model.ExchangeResult;
 import service.ExchangeService;
 
 import java.io.IOException;
@@ -20,6 +21,8 @@ public class ExchangeServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json;charset=UTF-8");
+
         String fromParam = req.getParameter("from");
         String toParam = req.getParameter("to");
         String amountParam = req.getParameter("amount");
@@ -49,16 +52,17 @@ public class ExchangeServlet extends HttpServlet {
             return;
         }
 
-        ExchangeRate rate = rateOpt.get();
-        double result = exchangeService.convert(amount, rate.rate());
+        ExchangeRate exchangeRate = rateOpt.get();
+        double result = exchangeService.convert(amount, exchangeRate.rate());
 
-        resp.setContentType("application/json;charset=UTF-8");
-        resp.getWriter().write(gson.toJson(Map.of(
-                "from", fromParam,
-                "to", toParam,
-                "rate", rate.rate(),
-                "amount", amount,
-                "convertedAmount", result
-        )));
+        ExchangeResult exchangeResult = new ExchangeResult(
+                exchangeRate.baseCurrency(),
+                exchangeRate.targetCurrency(),
+                exchangeRate.rate(),
+                amount,
+                result
+        );
+
+        resp.getWriter().write(gson.toJson(exchangeResult));
     }
 }

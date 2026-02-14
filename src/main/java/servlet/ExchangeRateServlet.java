@@ -58,7 +58,7 @@ public class ExchangeRateServlet extends HttpServlet {
             String[] pairs = body.split("&");
 
             for (String pair : pairs) {
-                if (body.startsWith("rate=")) {
+                if (pair.startsWith("rate=")) {
                     String[] parts = pair.split("=", 2);
                         rateParam = parts[1];
                 }
