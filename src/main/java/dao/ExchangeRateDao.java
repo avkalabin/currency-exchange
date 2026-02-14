@@ -158,4 +158,32 @@ public class ExchangeRateDao {
 
         return Optional.empty();
     }
+
+    public ExchangeRate updateRateByCurrencyPair(String baseCode, String targetCode, double rate) {
+        String sql = """
+                UPDATE exchange_rates
+                SET rate = ?
+                WHERE base_currency_id = (SELECT id FROM currencies WHERE code = ?)
+                AND target_currency_id = (SELECT id FROM currencies WHERE code = ?)
+                """;
+
+        try (Connection conn = DatabaseManager.getConnection();
+             PreparedStatement pstmt = conn.prepareStatement(sql)
+        ) {
+            pstmt.setDouble(1, rate);
+            pstmt.setString(2, baseCode);
+            pstmt.setString(3, targetCode);
+
+           int rowsAffected =  pstmt.executeUpdate();
+
+           if (rowsAffected == 0) {
+               throw new RuntimeException("Failed to update rate");
+           }
+
+           return findByCurrencyPair(baseCode, targetCode)
+                   .orElseThrow(() -> new RuntimeException("Rate not found after update"));
+        } catch (SQLException e) {
+            throw new RuntimeException("Failed to update exchange rate for " + baseCode + targetCode, e);
+        }
+    }
 }
