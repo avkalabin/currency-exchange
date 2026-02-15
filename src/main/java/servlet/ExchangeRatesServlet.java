@@ -74,6 +74,7 @@ public class ExchangeRatesServlet extends HttpServlet {
         if (exchangeRateDao.existByCurrencyPair(baseCurrency.id(), targetCurrency.id())) {
             resp.setStatus(HttpServletResponse.SC_CONFLICT);
             resp.getWriter().write(gson.toJson(Map.of("message", "Курс для этой пары валют уже существует")));
+            return;
         }
 
         ExchangeRate newRate = exchangeRateDao.create(baseCurrencyCode, targetCurrencyCode, rate);

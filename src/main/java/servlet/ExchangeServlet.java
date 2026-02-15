@@ -48,7 +48,7 @@ public class ExchangeServlet extends HttpServlet {
         Optional<ExchangeRate> rateOpt = exchangeService.findRate(fromParam, toParam);
         if (rateOpt.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Одна (или обе) валюта из валютной пары не существует в БД")));
+            resp.getWriter().write(gson.toJson(Map.of("message", "Курс обмена не найден для пары валют")));
             return;
         }
 
