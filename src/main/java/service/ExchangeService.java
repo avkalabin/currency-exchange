@@ -3,6 +3,8 @@ package service;
 import dao.ExchangeRateDao;
 import model.ExchangeRate;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.util.Optional;
 
 public class ExchangeService {
@@ -46,6 +48,10 @@ public class ExchangeService {
     }
 
     public double convert(double amount, double rate) {
-        return amount * rate;
+        BigDecimal amountBd = BigDecimal.valueOf(amount);
+        BigDecimal rateBd = BigDecimal.valueOf(rate);
+        return amountBd.multiply(rateBd)
+                .setScale(2, RoundingMode.HALF_EVEN)
+                .doubleValue();
     }
 }

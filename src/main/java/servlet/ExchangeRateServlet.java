@@ -46,7 +46,7 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json;charset=UTF-8");
 
         String pathInfo = req.getPathInfo();
         String contentType = req.getContentType();
@@ -98,7 +98,6 @@ public class ExchangeRateServlet extends HttpServlet {
         }
 
         ExchangeRate updatedExchangeRate = exchangeRateDao.updateRateByCurrencyPair(baseCode, targetCode, rate);
-        resp.setContentType("application/json; charset=UTF-8");
         resp.getWriter().write(gson.toJson(updatedExchangeRate));
     }
 }

@@ -20,16 +20,17 @@ public class CurrenciesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json;charset=UTF-8");
+
         List<Currency> currencies = currencyDao.findAll();
 
-        resp.setContentType("application/json;charset=UTF-8");
         String json = gson.toJson(currencies);
         resp.getWriter().write(json);
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json;charset=UTF-8");
 
         String name = req.getParameter("name");
         String code = req.getParameter("code");
@@ -50,7 +51,6 @@ public class CurrenciesServlet extends HttpServlet {
         Currency newCurrency = currencyDao.create(name, code, sign);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.setContentType("application/json;charset=UTF-8");
         resp.getWriter().write(gson.toJson(newCurrency));
     }
 }

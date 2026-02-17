@@ -23,15 +23,16 @@ public class ExchangeRatesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
+        resp.setContentType("application/json;charset=UTF-8");
+
         List<ExchangeRate> rates = exchangeRateDao.findAll();
 
-        resp.setContentType("application/json;charset=UTF-8");
         resp.getWriter().write(gson.toJson(rates));
     }
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        req.setCharacterEncoding("UTF-8");
+        resp.setContentType("application/json;charset=UTF-8");
 
         String baseCurrencyCode = req.getParameter("baseCurrencyCode");
         String targetCurrencyCode = req.getParameter("targetCurrencyCode");
@@ -80,7 +81,6 @@ public class ExchangeRatesServlet extends HttpServlet {
         ExchangeRate newRate = exchangeRateDao.create(baseCurrencyCode, targetCurrencyCode, rate);
 
         resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.setContentType("application/json;charset=UTF-8");
         resp.getWriter().write(gson.toJson(newRate));
     }
 }

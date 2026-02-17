@@ -29,7 +29,6 @@ public class ExchangeServlet extends HttpServlet {
 
         if (fromParam == null || toParam == null || amountParam == null) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.setContentType("application/json;charset=UTF-8");
             resp.getWriter().write(gson.toJson(
                     Map.of("message", "Отсутствует нужное поле формы")
             ));
