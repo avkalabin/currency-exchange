@@ -19,8 +19,6 @@
 
         @Override
         protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-            resp.setContentType("application/json; charset=UTF-8");
-
             String pathInfo = req.getPathInfo();
             if (pathInfo == null || !pathInfo.matches("/[A-Z]{3}")) {
                 resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);

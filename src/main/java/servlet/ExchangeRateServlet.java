@@ -22,8 +22,6 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json; charset=UTF-8");
-
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || !pathInfo.matches("/[A-Z]{6}")) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
@@ -46,8 +44,6 @@ public class ExchangeRateServlet extends HttpServlet {
 
     @Override
     protected void doPatch(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-
         String pathInfo = req.getPathInfo();
         String contentType = req.getContentType();
         String rateParam = null;

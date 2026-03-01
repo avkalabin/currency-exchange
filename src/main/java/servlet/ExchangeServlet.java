@@ -21,8 +21,6 @@ public class ExchangeServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-
         String fromParam = req.getParameter("from");
         String toParam = req.getParameter("to");
         String amountParam = req.getParameter("amount");

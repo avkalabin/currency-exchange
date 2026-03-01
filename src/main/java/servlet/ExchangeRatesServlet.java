@@ -23,8 +23,6 @@ public class ExchangeRatesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-
         List<ExchangeRate> rates = exchangeRateDao.findAll();
 
         resp.getWriter().write(gson.toJson(rates));
@@ -32,8 +30,6 @@ public class ExchangeRatesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-
         String baseCurrencyCode = req.getParameter("baseCurrencyCode");
         String targetCurrencyCode = req.getParameter("targetCurrencyCode");
         String rateParam = req.getParameter("rate");

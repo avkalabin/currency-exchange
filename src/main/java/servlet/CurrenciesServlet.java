@@ -20,8 +20,6 @@ public class CurrenciesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-
         List<Currency> currencies = currencyDao.findAll();
 
         String json = gson.toJson(currencies);
@@ -30,8 +28,6 @@ public class CurrenciesServlet extends HttpServlet {
 
     @Override
     protected void doPost(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        resp.setContentType("application/json;charset=UTF-8");
-
         String name = req.getParameter("name");
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
