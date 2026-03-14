@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.Currency;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -44,15 +45,19 @@ public class CurrenciesServlet extends HttpServlet {
             return;
         }
 
-        if (currencyDao.existByCode(code)) {
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Валюта с таким кодом уже существует")));
-            return;
+        try {
+            Currency newCurrency = currencyDao.create(name, code, sign);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.getWriter().write(gson.toJson(newCurrency));
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof SQLException &&
+                    ((SQLException) e.getCause()).getErrorCode() == 19) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getWriter().write(gson.toJson(Map.of("message", "Валюта с таким кодом уже существует")));
+            } else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().write(gson.toJson(Map.of("message", "Ошибка сервера")));
+            }
         }
-
-        Currency newCurrency = currencyDao.create(name, code, sign);
-
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.getWriter().write(gson.toJson(newCurrency));
     }
 }

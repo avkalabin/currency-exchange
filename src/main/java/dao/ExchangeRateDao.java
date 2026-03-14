@@ -91,24 +91,6 @@ public class ExchangeRateDao {
         }
     }
 
-    public boolean existByCurrencyPair(int baseCurrencyId, int targetCurrencyId) {
-        String sql = "SELECT id FROM exchange_rates WHERE base_currency_id = ? AND target_currency_id = ?";
-
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)
-        ) {
-            pstmt.setInt(1, baseCurrencyId);
-            pstmt.setInt(2, targetCurrencyId);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                return rs.next();
-            }
-
-        } catch (SQLException e) {
-            throw new RuntimeException("Failed to check exchange rates existence", e);
-        }
-    }
-
     public Optional<ExchangeRate> findByCurrencyPair(String baseCode, String targetCode) {
         String sql = """
                 SELECT

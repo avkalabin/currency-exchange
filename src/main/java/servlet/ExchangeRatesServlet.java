@@ -7,10 +7,10 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
-import model.Currency;
 import model.ExchangeRate;
 
 import java.io.IOException;
+import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
 
@@ -65,18 +65,19 @@ public class ExchangeRatesServlet extends HttpServlet {
             return;
         }
 
-        Currency baseCurrency = baseCurrencyOpt.get();
-        Currency targetCurrency = targetCurrencyOpt.get();
-
-        if (exchangeRateDao.existByCurrencyPair(baseCurrency.id(), targetCurrency.id())) {
-            resp.setStatus(HttpServletResponse.SC_CONFLICT);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Курс для этой пары валют уже существует")));
-            return;
+        try {
+            ExchangeRate newRate = exchangeRateDao.create(baseCurrencyCode, targetCurrencyCode, rate);
+            resp.setStatus(HttpServletResponse.SC_CREATED);
+            resp.getWriter().write(gson.toJson(newRate));
+        } catch (RuntimeException e) {
+            if (e.getCause() instanceof SQLException &&
+            ((SQLException) e.getCause()).getErrorCode() == 19) {
+                resp.setStatus(HttpServletResponse.SC_CONFLICT);
+                resp.getWriter().write(gson.toJson(Map.of("message", "Курс для этой пары валют уже существует")));
+            }else {
+                resp.setStatus(HttpServletResponse.SC_INTERNAL_SERVER_ERROR);
+                resp.getWriter().write(gson.toJson(Map.of("message", "Ошибка сервера")));
+            }
         }
-
-        ExchangeRate newRate = exchangeRateDao.create(baseCurrencyCode, targetCurrencyCode, rate);
-
-        resp.setStatus(HttpServletResponse.SC_CREATED);
-        resp.getWriter().write(gson.toJson(newRate));
     }
 }
