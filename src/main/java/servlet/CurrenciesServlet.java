@@ -32,9 +32,15 @@ public class CurrenciesServlet extends HttpServlet {
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
 
-        if (name == null || code == null || sign == null) {
+        if (name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(gson.toJson(Map.of("message", "Отсутствует нужное поле формы")));
+            return;
+        }
+
+        if (!code.matches("[A-Z]{3}")) {
+            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
+            resp.getWriter().write(gson.toJson(Map.of("message", "Код валюты должен содержать 3 заглавные буквы A-Z")));
             return;
         }
 
