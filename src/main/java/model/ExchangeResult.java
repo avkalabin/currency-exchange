@@ -1,10 +1,12 @@
 package model;
 
+import java.math.BigDecimal;
+
 public record ExchangeResult(
         Currency baseCurrency,
         Currency targetCurrency,
-        double rate,
-        double amount,
-        double convertedAmount
+        BigDecimal rate,
+        BigDecimal amount,
+        BigDecimal convertedAmount
 ) {
 }

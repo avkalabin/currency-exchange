@@ -9,6 +9,7 @@ import jakarta.servlet.http.HttpServletResponse;
 import model.ExchangeRate;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -73,10 +74,10 @@ public class ExchangeRateServlet extends HttpServlet {
             return;
         }
 
-        double rate;
+        BigDecimal rate;
 
         try {
-            rate = Double.parseDouble(rateParam);
+            rate = new BigDecimal(rateParam);
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(gson.toJson(Map.of("message", "Недопустимый формат числа в запросе")));

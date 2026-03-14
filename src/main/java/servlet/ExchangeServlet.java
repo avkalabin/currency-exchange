@@ -10,6 +10,7 @@ import model.ExchangeResult;
 import service.ExchangeService;
 
 import java.io.IOException;
+import java.math.BigDecimal;
 import java.util.Map;
 import java.util.Optional;
 
@@ -33,9 +34,9 @@ public class ExchangeServlet extends HttpServlet {
             return;
         }
 
-        double amount;
+        BigDecimal amount;
         try {
-            amount = Double.parseDouble(amountParam);
+            amount = new BigDecimal(amountParam);
         } catch (NumberFormatException e) {
             resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
             resp.getWriter().write(gson.toJson(Map.of("message", "Недопустимый формат числа в запросе")));
@@ -50,7 +51,7 @@ public class ExchangeServlet extends HttpServlet {
         }
 
         ExchangeRate exchangeRate = rateOpt.get();
-        double result = exchangeService.convert(amount, exchangeRate.rate());
+        BigDecimal result = exchangeService.convert(amount, exchangeRate.rate());
 
         ExchangeResult exchangeResult = new ExchangeResult(
                 exchangeRate.baseCurrency(),

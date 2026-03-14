@@ -3,6 +3,7 @@ package dao;
 import model.Currency;
 import model.ExchangeRate;
 
+import java.math.BigDecimal;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
@@ -49,7 +50,7 @@ public class ExchangeRateDao {
                         rs.getInt("id"),
                         baseCurrency,
                         targetCurrency,
-                        rs.getDouble("rate")
+                        rs.getBigDecimal("rate")
                 ));
             }
         } catch (SQLException e) {
@@ -58,7 +59,7 @@ public class ExchangeRateDao {
         return rates;
     }
 
-    public ExchangeRate create(String baseCurrencyCode, String targetCurrencyCode, double rate) {
+    public ExchangeRate create(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
         String sql = "INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)";
         CurrencyDao currencyDao = new CurrencyDao();
 
@@ -76,7 +77,7 @@ public class ExchangeRateDao {
         ) {
             pstmt.setInt(1, baseCurrencyId);
             pstmt.setInt(2, targetCurrencyId);
-            pstmt.setDouble(3, rate);
+            pstmt.setBigDecimal(3, rate);
             pstmt.executeUpdate();
 
             ResultSet generatedKeys = pstmt.getGeneratedKeys();
@@ -129,7 +130,7 @@ public class ExchangeRateDao {
                             rs.getInt("id"),
                             baseCurrency,
                             targetCurrency,
-                            rs.getDouble("rate")
+                            rs.getBigDecimal("rate")
                     ));
                 }
             }
@@ -141,7 +142,7 @@ public class ExchangeRateDao {
         return Optional.empty();
     }
 
-    public ExchangeRate updateRateByCurrencyPair(String baseCode, String targetCode, double rate) {
+    public ExchangeRate updateRateByCurrencyPair(String baseCode, String targetCode, BigDecimal rate) {
         String sql = """
                 UPDATE exchange_rates
                 SET rate = ?
@@ -152,7 +153,7 @@ public class ExchangeRateDao {
         try (Connection conn = DatabaseManager.getConnection();
              PreparedStatement pstmt = conn.prepareStatement(sql)
         ) {
-            pstmt.setDouble(1, rate);
+            pstmt.setBigDecimal(1, rate);
             pstmt.setString(2, baseCode);
             pstmt.setString(3, targetCode);
 

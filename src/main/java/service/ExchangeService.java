@@ -20,11 +20,12 @@ public class ExchangeService {
         Optional<ExchangeRate> reverseRate = exchangeRateDao.findByCurrencyPair(toCode, fromCode);
         if (reverseRate.isPresent()) {
             ExchangeRate reverse = reverseRate.get();
+            BigDecimal inverseRate = BigDecimal.ONE.divide(reverse.rate(), 10, RoundingMode.HALF_EVEN);
             return Optional.of(new ExchangeRate(
                     0,
                     reverse.targetCurrency(),
                     reverse.baseCurrency(),
-                    1.0 / reverse.rate()
+                    inverseRate
             ));
         }
 
@@ -32,9 +33,9 @@ public class ExchangeService {
         Optional<ExchangeRate> usdToTo = exchangeRateDao.findByCurrencyPair("USD", toCode);
 
         if (usdToFrom.isPresent() && usdToTo.isPresent()) {
-            double usdToFromRate = usdToFrom.get().rate();
-            double usdToToRate = usdToTo.get().rate();
-            double computedRate = usdToToRate / usdToFromRate;
+            BigDecimal usdToFromRate = usdToFrom.get().rate();
+            BigDecimal usdToToRate = usdToTo.get().rate();
+            BigDecimal computedRate = usdToToRate.divide(usdToFromRate, 10, RoundingMode.HALF_EVEN);
 
             return Optional.of(new ExchangeRate(
                     -1,
@@ -47,11 +48,8 @@ public class ExchangeService {
         return Optional.empty();
     }
 
-    public double convert(double amount, double rate) {
-        BigDecimal amountBd = BigDecimal.valueOf(amount);
-        BigDecimal rateBd = BigDecimal.valueOf(rate);
-        return amountBd.multiply(rateBd)
-                .setScale(2, RoundingMode.HALF_EVEN)
-                .doubleValue();
+    public BigDecimal convert(BigDecimal amount, BigDecimal rate) {
+        return amount.multiply(rate)
+                .setScale(2, RoundingMode.HALF_EVEN);
     }
 }
