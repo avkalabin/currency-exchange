@@ -6,7 +6,13 @@ import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
 
-@WebFilter("/*")
+@WebFilter({
+        "/currencies",
+        "/currency/*",
+        "/exchangeRate/*",
+        "/exchangeRates",
+        "/exchange"
+})
 public class JsonResponseFilter implements Filter {
 
     @Override
