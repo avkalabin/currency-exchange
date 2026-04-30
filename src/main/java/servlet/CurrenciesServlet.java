@@ -1,11 +1,11 @@
 package servlet;
 
-import dao.CurrencyDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.Currency;
+import service.CurrencyService;
 
 import java.io.IOException;
 import java.sql.SQLException;
@@ -18,11 +18,12 @@ import static util.ResponseUtil.json;
 @WebServlet("/currencies")
 public class CurrenciesServlet extends HttpServlet {
 
-    private final CurrencyDao currencyDao = new CurrencyDao();
+    private final CurrencyService currencyService = new CurrencyService();
 
     @Override
+
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<Currency> currencies = currencyDao.findAll();
+        List<Currency> currencies = currencyService.findAllCurrencies();
 
         json(resp, SC_OK, currencies);
     }
@@ -33,7 +34,8 @@ public class CurrenciesServlet extends HttpServlet {
         String code = req.getParameter("code");
         String sign = req.getParameter("sign");
 
-        if (name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
+        if (name == null || code == null || sign == null
+                || name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
             error(resp, SC_BAD_REQUEST, "Отсутствует нужное поле формы");
             return;
         }
@@ -44,7 +46,7 @@ public class CurrenciesServlet extends HttpServlet {
         }
 
         try {
-            Currency newCurrency = currencyDao.create(name, code, sign);
+            Currency newCurrency = currencyService.createCurrency(name, code, sign);
             json(resp, HttpServletResponse.SC_CREATED, newCurrency);
         } catch (RuntimeException e) {
             if (e.getCause() instanceof SQLException &&
