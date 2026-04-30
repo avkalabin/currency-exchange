@@ -1,6 +1,5 @@
 package servlet;
 
-import com.google.gson.Gson;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -11,14 +10,16 @@ import service.ExchangeService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.Optional;
+
+import static jakarta.servlet.http.HttpServletResponse.*;
+import static util.ResponseUtil.error;
+import static util.ResponseUtil.json;
 
 @WebServlet("/exchange")
 public class ExchangeServlet extends HttpServlet {
 
     private final ExchangeService exchangeService = new ExchangeService();
-    private final Gson gson = new Gson();
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
@@ -27,10 +28,7 @@ public class ExchangeServlet extends HttpServlet {
         String amountParam = req.getParameter("amount");
 
         if (fromParam == null || toParam == null || amountParam == null) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(
-                    Map.of("message", "Отсутствует нужное поле формы")
-            ));
+            error(resp, SC_BAD_REQUEST, "Отсутствует нужное поле формы");
             return;
         }
 
@@ -38,15 +36,13 @@ public class ExchangeServlet extends HttpServlet {
         try {
             amount = new BigDecimal(amountParam);
         } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Недопустимый формат числа в запросе")));
+            error(resp, SC_BAD_REQUEST, "Недопустимый формат числа в запросе");
             return;
         }
 
         Optional<ExchangeRate> rateOpt = exchangeService.findRate(fromParam, toParam);
         if (rateOpt.isEmpty()) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Курс обмена не найден для пары валют")));
+            error(resp, SC_NOT_FOUND, "Курс обмена не найден для пары валют");
             return;
         }
 
@@ -61,6 +57,6 @@ public class ExchangeServlet extends HttpServlet {
                 result
         );
 
-        resp.getWriter().write(gson.toJson(exchangeResult));
+        json(resp, SC_OK, exchangeResult);
     }
 }

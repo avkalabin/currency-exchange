@@ -1,6 +1,5 @@
 package servlet;
 
-import com.google.gson.Gson;
 import dao.ExchangeRateDao;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
@@ -10,23 +9,23 @@ import model.ExchangeRate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static jakarta.servlet.http.HttpServletResponse.*;
+import static util.ResponseUtil.error;
+import static util.ResponseUtil.json;
 
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
     private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
-    private final Gson gson = new Gson();
-
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || !pathInfo.matches("/[A-Z]{6}")) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Коды валют пары отсутствуют в адресе (в паре должно быть 6 заглавных букв A-Z)")));
+            error(resp, SC_BAD_REQUEST, "Коды валют пары отсутствуют в адресе (в паре должно быть 6 заглавных букв A-Z)");
             return;
         }
 
@@ -35,12 +34,11 @@ public class ExchangeRateServlet extends HttpServlet {
 
         Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
         if (exchangeRateOpt.isEmpty()) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Обменный курс для пары не найден")));
+            error(resp, SC_NOT_FOUND,"Обменный курс для пары не найден");
             return;
         }
 
-        resp.getWriter().write(gson.toJson(exchangeRateOpt.get()));
+        json(resp, SC_OK, exchangeRateOpt.get());
     }
 
     @Override
@@ -63,14 +61,12 @@ public class ExchangeRateServlet extends HttpServlet {
         }
 
         if (rateParam == null || rateParam.isEmpty()) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Отсутствует нужное поле формы")));
+            error(resp, SC_BAD_REQUEST, "Отсутствует нужное поле формы");
             return;
         }
 
         if (pathInfo == null || !pathInfo.matches("/[A-Z]{6}")) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Коды валют пары отсутствуют в адресе (в паре должно быть 6 заглавных букв A-Z)")));
+            error(resp, SC_BAD_REQUEST, "Коды валют пары отсутствуют в адресе (в паре должно быть 6 заглавных букв A-Z)");
             return;
         }
 
@@ -79,8 +75,7 @@ public class ExchangeRateServlet extends HttpServlet {
         try {
             rate = new BigDecimal(rateParam);
         } catch (NumberFormatException e) {
-            resp.setStatus(HttpServletResponse.SC_BAD_REQUEST);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Недопустимый формат числа в запросе")));
+            error(resp, SC_BAD_REQUEST, "Недопустимый формат числа в запросе");
             return;
         }
 
@@ -89,12 +84,11 @@ public class ExchangeRateServlet extends HttpServlet {
 
         Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
         if (exchangeRateOpt.isEmpty()) {
-            resp.setStatus(HttpServletResponse.SC_NOT_FOUND);
-            resp.getWriter().write(gson.toJson(Map.of("message", "Обменный курс для пары не найден")));
+            error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
             return;
         }
 
         ExchangeRate updatedExchangeRate = exchangeRateDao.updateRateByCurrencyPair(baseCode, targetCode, rate);
-        resp.getWriter().write(gson.toJson(updatedExchangeRate));
+        json(resp, SC_OK, updatedExchangeRate);
     }
 }
