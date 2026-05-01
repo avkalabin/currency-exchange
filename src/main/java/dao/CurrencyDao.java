@@ -1,5 +1,6 @@
 package dao;
 
+import exception.DataAccessException;
 import model.Currency;
 
 import java.sql.*;
@@ -24,7 +25,7 @@ public class CurrencyDao {
                 ));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get currencies", e);
+            throw new DataAccessException("Failed to get currencies", e);
         }
         return currencies;
     }
@@ -45,10 +46,10 @@ public class CurrencyDao {
                 return new Currency(id, name, code, sign);
             }
 
-            throw new RuntimeException("Failed to create currency ID");
+            throw new DataAccessException("Failed to create currency ID: no generated key");
 
         } catch (SQLException e) {
-            throw new RuntimeException(e);
+            throw new DataAccessException("Database error while creating currency", e);
         }
     }
 
@@ -70,7 +71,7 @@ public class CurrencyDao {
                 return Optional.empty();
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find currency by code: " + code, e);
+            throw new DataAccessException("Failed to find currency by code: " + code, e);
         }
     }
 }

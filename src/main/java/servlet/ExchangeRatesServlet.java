@@ -2,6 +2,7 @@ package servlet;
 
 import dao.CurrencyDao;
 import dao.ExchangeRateDao;
+import exception.DataAccessException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,7 +11,6 @@ import model.ExchangeRate;
 
 import java.io.IOException;
 import java.math.BigDecimal;
-import java.sql.SQLException;
 import java.util.List;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
@@ -66,13 +66,10 @@ public class ExchangeRatesServlet extends HttpServlet {
         try {
             ExchangeRate newRate = exchangeRateDao.create(baseCurrencyCode, targetCurrencyCode, rate);
             json(resp, SC_CREATED, newRate);
+        } catch (DataAccessException e) {
+            error(resp, SC_CONFLICT, e.getMessage());
         } catch (RuntimeException e) {
-            if (e.getCause() instanceof SQLException &&
-            ((SQLException) e.getCause()).getErrorCode() == 19) {
-                error(resp, SC_CONFLICT, "Курс для этой пары валют уже существует");
-            }else {
-                error(resp,SC_INTERNAL_SERVER_ERROR, "Ошибка сервера");
-            }
+            error(resp, SC_INTERNAL_SERVER_ERROR, "Ошибка сервера");
         }
     }
 }
