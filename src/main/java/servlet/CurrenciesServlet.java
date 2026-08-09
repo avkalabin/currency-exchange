@@ -26,9 +26,16 @@ public class CurrenciesServlet extends HttpServlet {
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
-        List<Currency> currencies = currencyService.findAllCurrencies();
+        try {
+            List<Currency> currencies = currencyService.findAllCurrencies();
 
-        json(resp, SC_OK, currencies);
+            log.info("All currencies found");
+            json(resp, SC_OK, currencies);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error while fetching all currencies", e);
+            error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
+        }
+
     }
 
     @Override
@@ -39,16 +46,20 @@ public class CurrenciesServlet extends HttpServlet {
 
         if (name == null || code == null || sign == null
                 || name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
+            log.warning("Missing required form field");
             error(resp, SC_BAD_REQUEST, "Отсутствует нужное поле формы");
             return;
         }
 
         try {
             Currency newCurrency = currencyService.createCurrency(name, code, sign);
+            log.info("New currency created: " + code + " " + name);
             json(resp, HttpServletResponse.SC_CREATED, newCurrency);
         } catch (InvalidCurrencyCodeException e) {
+            log.warning("Invalid currency code: must be 3 uppercase letters");
             error(resp, SC_BAD_REQUEST, "Код валюты должен содержать 3 заглавные буквы A-Z");
         } catch (CurrencyAlreadyExistsException e) {
+            log.warning("Currency with code " + code + " already exist");
             error(resp, SC_CONFLICT, "Валюта с кодом " + code + " уже существует");
         } catch (Exception e) {
             log.log(Level.SEVERE, "Unexpected error while creating currency", e);

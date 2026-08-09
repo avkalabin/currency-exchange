@@ -1,6 +1,7 @@
 package servlet;
 
 import dao.ExchangeRateDao;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -10,6 +11,8 @@ import model.ExchangeRate;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Optional;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 import static jakarta.servlet.http.HttpServletResponse.*;
@@ -20,11 +23,13 @@ import static util.ResponseUtil.json;
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
     private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
+    private static final Logger log = Logger.getLogger(ExchangeRateServlet.class.getName());
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String pathInfo = req.getPathInfo();
         if (pathInfo == null || !pathInfo.matches("/[A-Z]{6}")) {
+            log.warning("Invalid currency pair in request " + pathInfo + " (expected /[A-Z]{6})");
             error(resp, SC_BAD_REQUEST, "Коды валют пары отсутствуют в адресе (в паре должно быть 6 заглавных букв A-Z)");
             return;
         }
@@ -32,13 +37,30 @@ public class ExchangeRateServlet extends HttpServlet {
         String baseCode = pathInfo.substring(1, 4);
         String targetCode = pathInfo.substring(4);
 
-        Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
-        if (exchangeRateOpt.isEmpty()) {
-            error(resp, SC_NOT_FOUND,"Обменный курс для пары не найден");
-            return;
+        try {
+            Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
+            if (exchangeRateOpt.isEmpty()) {
+                log.warning("Exchange rate not found " + baseCode + targetCode);
+                error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
+                return;
+            }
+
+            log.info("Exchange rate found: " + baseCode + targetCode);
+            json(resp, SC_OK, exchangeRateOpt.get());
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error while fetching exchange rate for pair: " + baseCode + "/" + targetCode, e);
+            error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
         }
 
-        json(resp, SC_OK, exchangeRateOpt.get());
+    }
+
+    @Override
+    protected void service(HttpServletRequest req, HttpServletResponse resp) throws ServletException, IOException {
+        if ("PATCH".equalsIgnoreCase(req.getMethod())) {
+            doPatch(req, resp);
+        } else {
+            super.service(req, resp);
+        }
     }
 
     @Override
@@ -55,17 +77,19 @@ public class ExchangeRateServlet extends HttpServlet {
             for (String pair : pairs) {
                 if (pair.startsWith("rate=")) {
                     String[] parts = pair.split("=", 2);
-                        rateParam = parts[1];
+                    rateParam = parts[1];
                 }
             }
         }
 
         if (rateParam == null || rateParam.isEmpty()) {
+            log.warning("Missed required form field");
             error(resp, SC_BAD_REQUEST, "Отсутствует нужное поле формы");
             return;
         }
 
         if (pathInfo == null || !pathInfo.matches("/[A-Z]{6}")) {
+            log.warning("Invalid currency pair in request " + pathInfo + " (expected /[A-Z]{6})");
             error(resp, SC_BAD_REQUEST, "Коды валют пары отсутствуют в адресе (в паре должно быть 6 заглавных букв A-Z)");
             return;
         }
@@ -75,6 +99,7 @@ public class ExchangeRateServlet extends HttpServlet {
         try {
             rate = new BigDecimal(rateParam);
         } catch (NumberFormatException e) {
+            log.warning("Invalid number format in request");
             error(resp, SC_BAD_REQUEST, "Недопустимый формат числа в запросе");
             return;
         }
@@ -82,13 +107,21 @@ public class ExchangeRateServlet extends HttpServlet {
         String baseCode = pathInfo.substring(1, 4);
         String targetCode = pathInfo.substring(4);
 
-        Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
-        if (exchangeRateOpt.isEmpty()) {
-            error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
-            return;
+        try {
+            Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
+            if (exchangeRateOpt.isEmpty()) {
+                log.warning("Exchange rate not found " + baseCode + targetCode);
+                error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
+                return;
+            }
+
+            ExchangeRate updatedExchangeRate = exchangeRateDao.updateRateByCurrencyPair(baseCode, targetCode, rate);
+            log.info("Exchange rate updated " + baseCode + targetCode + " " + rate);
+            json(resp, SC_OK, updatedExchangeRate);
+        } catch (Exception e) {
+            log.log(Level.SEVERE, "Unexpected error while updating exchange rate for " + baseCode + "/" + targetCode, e);
+            error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
         }
 
-        ExchangeRate updatedExchangeRate = exchangeRateDao.updateRateByCurrencyPair(baseCode, targetCode, rate);
-        json(resp, SC_OK, updatedExchangeRate);
     }
 }

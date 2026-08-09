@@ -1,5 +1,6 @@
 package dao;
 
+import exception.DataAccessException;
 import model.Currency;
 import model.ExchangeRate;
 
@@ -43,7 +44,6 @@ public class ExchangeRateDao {
                         rs.getString("tc_name"),
                         rs.getString("tc_code"),
                         rs.getString("tc_sign")
-
                 );
 
                 rates.add(new ExchangeRate(
@@ -88,7 +88,7 @@ public class ExchangeRateDao {
             throw new RuntimeException("Failed to get generated exchange rate ID");
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to create exchange rate", e);
+            throw new DataAccessException("Failed to create exchange rate", e);
         }
     }
 
@@ -157,14 +157,14 @@ public class ExchangeRateDao {
             pstmt.setString(2, baseCode);
             pstmt.setString(3, targetCode);
 
-           int rowsAffected =  pstmt.executeUpdate();
+            int rowsAffected = pstmt.executeUpdate();
 
-           if (rowsAffected == 0) {
-               throw new RuntimeException("Failed to update rate");
-           }
+            if (rowsAffected == 0) {
+                throw new RuntimeException("Failed to update rate");
+            }
 
-           return findByCurrencyPair(baseCode, targetCode)
-                   .orElseThrow(() -> new RuntimeException("Rate not found after update"));
+            return findByCurrencyPair(baseCode, targetCode)
+                    .orElseThrow(() -> new RuntimeException("Rate not found after update"));
         } catch (SQLException e) {
             throw new RuntimeException("Failed to update exchange rate for " + baseCode + targetCode, e);
         }
