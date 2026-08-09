@@ -122,6 +122,5 @@ public class ExchangeRateServlet extends HttpServlet {
             log.log(Level.SEVERE, "Unexpected error while updating exchange rate for " + baseCode + "/" + targetCode, e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
         }
-
     }
 }

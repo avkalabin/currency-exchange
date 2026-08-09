@@ -38,7 +38,6 @@ public class ExchangeRatesServlet extends HttpServlet {
            log.log(Level.SEVERE, " Unexpected error while fetching all exchange rates", e);
            error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
        }
-
     }
 
     @Override

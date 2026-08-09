@@ -70,6 +70,5 @@ public class ExchangeServlet extends HttpServlet {
             log.log(Level.SEVERE, "Unexpected error while exchange", e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
         }
-
     }
 }

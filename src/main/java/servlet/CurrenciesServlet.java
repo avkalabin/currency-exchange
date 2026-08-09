@@ -35,7 +35,6 @@ public class CurrenciesServlet extends HttpServlet {
             log.log(Level.SEVERE, "Unexpected error while fetching all currencies", e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
         }
-
     }
 
     @Override
