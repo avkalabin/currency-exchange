@@ -1,6 +1,7 @@
 package dao;
 
 import exception.DataAccessException;
+import exception.ExchangeRateNotFoundException;
 import model.Currency;
 import model.ExchangeRate;
 
@@ -54,20 +55,13 @@ public class ExchangeRateDao {
                 ));
             }
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to get exchange rates", e);
+            throw new DataAccessException("Failed to get exchange rates", e);
         }
         return rates;
     }
 
-    public ExchangeRate create(String baseCurrencyCode, String targetCurrencyCode, BigDecimal rate) {
+    public ExchangeRate create(Currency baseCurrency, Currency targetCurrency, BigDecimal rate) {
         String sql = "INSERT INTO exchange_rates (base_currency_id, target_currency_id, rate) VALUES (?, ?, ?)";
-        CurrencyDao currencyDao = new CurrencyDao();
-
-        Currency baseCurrency = currencyDao.findByCode(baseCurrencyCode)
-                .orElseThrow(() -> new RuntimeException("Base currency not found " + baseCurrencyCode));
-
-        Currency targetCurrency = currencyDao.findByCode(targetCurrencyCode)
-                .orElseThrow(() -> new RuntimeException("Target currency not found " + targetCurrencyCode));
 
         int baseCurrencyId = baseCurrency.id();
         int targetCurrencyId = targetCurrency.id();
@@ -85,7 +79,7 @@ public class ExchangeRateDao {
                 int id = generatedKeys.getInt(1);
                 return new ExchangeRate(id, baseCurrency, targetCurrency, rate);
             }
-            throw new RuntimeException("Failed to get generated exchange rate ID");
+            throw new DataAccessException("Failed to get generated exchange rate ID");
 
         } catch (SQLException e) {
             throw new DataAccessException("Failed to create exchange rate", e);
@@ -136,7 +130,7 @@ public class ExchangeRateDao {
             }
 
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to find exchange rate fo pair", e);
+            throw new DataAccessException("Failed to find exchange rate for pair", e);
         }
 
         return Optional.empty();
@@ -160,13 +154,13 @@ public class ExchangeRateDao {
             int rowsAffected = pstmt.executeUpdate();
 
             if (rowsAffected == 0) {
-                throw new RuntimeException("Failed to update rate");
+                throw new ExchangeRateNotFoundException("Exchange rate not found " + baseCode + targetCode);
             }
 
             return findByCurrencyPair(baseCode, targetCode)
-                    .orElseThrow(() -> new RuntimeException("Rate not found after update"));
+                    .orElseThrow(() -> new ExchangeRateNotFoundException("Rate not found after update " + baseCode + targetCode));
         } catch (SQLException e) {
-            throw new RuntimeException("Failed to update exchange rate for " + baseCode + targetCode, e);
+            throw new DataAccessException("Failed to update exchange rate for " + baseCode + targetCode, e);
         }
     }
 }

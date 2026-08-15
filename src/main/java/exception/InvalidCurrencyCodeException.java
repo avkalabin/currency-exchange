@@ -2,6 +2,7 @@ package exception;
 
 public class InvalidCurrencyCodeException extends ServiceException {
 
-    public InvalidCurrencyCodeException(String s) {
+    public InvalidCurrencyCodeException(String message) {
+        super(message);
     }
 }

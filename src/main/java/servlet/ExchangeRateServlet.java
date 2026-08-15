@@ -1,12 +1,13 @@
 package servlet;
 
-import dao.ExchangeRateDao;
+import exception.ExchangeRateNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import model.ExchangeRate;
+import service.ExchangeRateService;
 
 import java.io.IOException;
 import java.math.BigDecimal;
@@ -22,7 +23,7 @@ import static util.ResponseUtil.json;
 
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
-    private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
+    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
     private static final Logger log = Logger.getLogger(ExchangeRateServlet.class.getName());
 
     @Override
@@ -38,7 +39,7 @@ public class ExchangeRateServlet extends HttpServlet {
         String targetCode = pathInfo.substring(4);
 
         try {
-            Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
+            Optional<ExchangeRate> exchangeRateOpt = exchangeRateService.findByCurrencyPair(baseCode, targetCode);
             if (exchangeRateOpt.isEmpty()) {
                 log.warning("Exchange rate not found " + baseCode + targetCode);
                 error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
@@ -104,20 +105,29 @@ public class ExchangeRateServlet extends HttpServlet {
             return;
         }
 
+        if (rate.signum() <= 0) {
+            log.warning("Exchange rate must be greater than zero");
+            error(resp, SC_BAD_REQUEST, "Курс обмена должен быть больше нуля");
+            return;
+        }
+
         String baseCode = pathInfo.substring(1, 4);
         String targetCode = pathInfo.substring(4);
 
         try {
-            Optional<ExchangeRate> exchangeRateOpt = exchangeRateDao.findByCurrencyPair(baseCode, targetCode);
+            Optional<ExchangeRate> exchangeRateOpt = exchangeRateService.findByCurrencyPair(baseCode, targetCode);
             if (exchangeRateOpt.isEmpty()) {
                 log.warning("Exchange rate not found " + baseCode + targetCode);
                 error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
                 return;
             }
 
-            ExchangeRate updatedExchangeRate = exchangeRateDao.updateRateByCurrencyPair(baseCode, targetCode, rate);
+            ExchangeRate updatedExchangeRate = exchangeRateService.updateRateByCurrencyPair(baseCode, targetCode, rate);
             log.info("Exchange rate updated " + baseCode + targetCode + " " + rate);
             json(resp, SC_OK, updatedExchangeRate);
+        } catch (ExchangeRateNotFoundException e) {
+            log.warning("Exchange rate not found " + baseCode + targetCode);
+            error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");
         } catch (Exception e) {
             log.log(Level.SEVERE, "Unexpected error while updating exchange rate for " + baseCode + "/" + targetCode, e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");

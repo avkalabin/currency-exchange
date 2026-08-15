@@ -19,7 +19,7 @@ import static util.ResponseUtil.json;
 @WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
     private final CurrencyService currencyService = new CurrencyService();
-    private static final Logger log = Logger.getLogger(CurrenciesServlet.class.getName());
+    private static final Logger log = Logger.getLogger(CurrencyServlet.class.getName());
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

@@ -6,8 +6,11 @@ import java.nio.charset.StandardCharsets;
 import java.sql.Connection;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.logging.Logger;
 
 public class DatabaseInitializer {
+    private static final Logger log = Logger.getLogger(DatabaseInitializer.class.getName());
+
     public static void init() {
         try (Connection conn = DatabaseManager.getConnection();
              Statement stmt = conn.createStatement()) {
@@ -28,7 +31,7 @@ public class DatabaseInitializer {
                 }
 
                 stmt.executeBatch();
-                System.out.println("Executed " + statements.length + " SQL statements");
+                log.info("Executed " + statements.length + " SQL statements");
             }
         } catch (SQLException | IOException e) {
             throw new RuntimeException("Failed to initialize database", e);
