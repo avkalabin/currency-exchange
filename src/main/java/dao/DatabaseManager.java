@@ -7,7 +7,8 @@ import java.sql.Connection;
 import java.sql.SQLException;
 
 public class DatabaseManager {
-    private static final String DB_URL = "jdbc:sqlite:currency_exchange.db?journal_mode=WAL";
+    private static final String DB_URL = "jdbc:sqlite:"
+            + System.getProperty("db.path", "currency_exchange.db") + "?journal_mode=WAL";
     private static final HikariConfig config = new HikariConfig();
     private static final HikariDataSource dataSource;
 
