@@ -36,6 +36,12 @@ public class ExchangeServlet extends HttpServlet {
             return;
         }
 
+        if (!fromParam.matches("[A-Z]{3}") || !toParam.matches("[A-Z]{3}")) {
+            log.warning("Invalid currency codes: must be 3 uppercase letters");
+            error(resp, SC_BAD_REQUEST, "Коды валют отсутствует в адресе (должны содержать 3 заглавные буквы A-Z)");
+            return;
+        }
+
         BigDecimal amount;
         try {
             amount = new BigDecimal(amountParam);

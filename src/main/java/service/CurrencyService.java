@@ -1,10 +1,7 @@
 package service;
 
 import dao.CurrencyDao;
-import exception.CurrencyAlreadyExistsException;
-import exception.DataAccessException;
-import exception.InvalidCurrencyCodeException;
-import exception.ServiceException;
+import exception.*;
 import model.Currency;
 
 import java.sql.SQLException;
@@ -22,6 +19,10 @@ public class CurrencyService {
     public final Currency createCurrency(String name, String code, String sign) {
         if (!code.matches("[A-Z]{3}")) {
            throw new InvalidCurrencyCodeException("Invalid currency code: must be 3 uppercase letters");
+        }
+
+        if (sign.length() > 3) {
+            throw new InvalidCurrencySignException("Invalid currency sign: must be 1-3 characters");
         }
 
         try {

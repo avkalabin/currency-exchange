@@ -1,5 +1,6 @@
 package service;
 
+import dao.CurrencyDao;
 import dao.ExchangeRateDao;
 import model.ExchangeRate;
 
@@ -10,8 +11,14 @@ import java.util.Optional;
 public class ExchangeService {
 
     private final ExchangeRateDao exchangeRateDao = new ExchangeRateDao();
+    private final CurrencyDao currencyDao = new CurrencyDao();
 
     public Optional<ExchangeRate> findRate(String fromCode, String toCode) {
+        if (fromCode.equals(toCode)) {
+            return currencyDao.findByCode(fromCode)
+                    .map(currency -> new ExchangeRate(0, currency, currency, BigDecimal.ONE));
+        }
+
         Optional<ExchangeRate> directRate = exchangeRateDao.findByCurrencyPair(fromCode, toCode);
         if (directRate.isPresent()) {
             return directRate;
@@ -38,7 +45,7 @@ public class ExchangeService {
             BigDecimal computedRate = usdToToRate.divide(usdToFromRate, 10, RoundingMode.HALF_EVEN);
 
             return Optional.of(new ExchangeRate(
-                    -1,
+                    0,
                     usdToFrom.get().targetCurrency(),
                     usdToTo.get().targetCurrency(),
                     computedRate

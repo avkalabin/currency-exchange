@@ -2,6 +2,7 @@ package servlet;
 
 import exception.CurrencyAlreadyExistsException;
 import exception.InvalidCurrencyCodeException;
+import exception.InvalidCurrencySignException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -44,7 +45,7 @@ public class CurrenciesServlet extends HttpServlet {
         String sign = req.getParameter("sign");
 
         if (name == null || code == null || sign == null
-                || name.isEmpty() || code.isEmpty() || sign.isEmpty()) {
+                || name.isBlank() || code.isBlank() || sign.isBlank()) {
             log.warning("Missing required form field");
             error(resp, SC_BAD_REQUEST, "Отсутствует нужное поле формы");
             return;
@@ -57,6 +58,9 @@ public class CurrenciesServlet extends HttpServlet {
         } catch (InvalidCurrencyCodeException e) {
             log.warning("Invalid currency code: must be 3 uppercase letters");
             error(resp, SC_BAD_REQUEST, "Код валюты должен содержать 3 заглавные буквы A-Z");
+        } catch (InvalidCurrencySignException e) {
+            log.warning("Invalid currency sign: must be 1-3 characters");
+            error(resp, SC_BAD_REQUEST, "Символ валюты должен содержать 1-3 символа");
         } catch (CurrencyAlreadyExistsException e) {
             log.warning("Currency with code " + code + " already exist");
             error(resp, SC_CONFLICT, "Валюта с кодом " + code + " уже существует");
