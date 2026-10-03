@@ -4,8 +4,9 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import mapper.CurrencyMapper;
 import model.ExchangeRate;
-import model.ExchangeResult;
+import dto.ExchangeResponseDto;
 import service.ExchangeService;
 
 import java.io.IOException;
@@ -62,16 +63,16 @@ public class ExchangeServlet extends HttpServlet {
             ExchangeRate exchangeRate = rateOpt.get();
             BigDecimal result = exchangeService.convert(amount, exchangeRate.rate());
 
-            ExchangeResult exchangeResult = new ExchangeResult(
-                    exchangeRate.baseCurrency(),
-                    exchangeRate.targetCurrency(),
+            ExchangeResponseDto exchangeResponseDto = new ExchangeResponseDto(
+                    CurrencyMapper.toDto(exchangeRate.baseCurrency()),
+                    CurrencyMapper.toDto(exchangeRate.targetCurrency()),
                     exchangeRate.rate(),
                     amount,
                     result
             );
 
             log.info("Exchange converted: " + fromParam + " -> " + toParam + ", amount=" + amount + ", result=" + result);
-            json(resp, SC_OK, exchangeResult);
+            json(resp, SC_OK, exchangeResponseDto);
         } catch (Exception e) {
             log.log(Level.SEVERE, "Unexpected error while exchange", e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");

@@ -1,10 +1,10 @@
 package util;
 
 import com.google.gson.Gson;
+import dto.ErrorResponseDto;
 import jakarta.servlet.http.HttpServletResponse;
 
 import java.io.IOException;
-import java.util.Map;
 
 public class ResponseUtil {
 
@@ -18,7 +18,7 @@ public class ResponseUtil {
     }
 
     public static void error(HttpServletResponse resp, int status, String message) throws IOException {
-        write(resp, status, Map.of("message", message));
+        write(resp, status, new ErrorResponseDto(message));
     }
 
     private static void write(HttpServletResponse resp, int status, Object body) throws IOException {

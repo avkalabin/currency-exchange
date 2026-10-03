@@ -1,11 +1,13 @@
 package servlet;
 
+import dto.ExchangeRateResponseDto;
 import exception.CurrencyNotFoundException;
 import exception.ExchangeRateAlreadyExistsException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import mapper.ExchangeRateMapper;
 import model.ExchangeRate;
 import service.ExchangeRateService;
 
@@ -29,9 +31,9 @@ public class ExchangeRatesServlet extends HttpServlet {
 
         try {
             List<ExchangeRate> rates = exchangeRateService.findAll();
-
+            List<ExchangeRateResponseDto> ratesDto = rates.stream().map(ExchangeRateMapper::toDto).toList();
             log.info("All exchange rates found");
-            json(resp, SC_OK, rates);
+            json(resp, SC_OK, ratesDto);
         } catch (Exception e) {
             log.log(Level.SEVERE, " Unexpected error while fetching all exchange rates", e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
@@ -75,7 +77,8 @@ public class ExchangeRatesServlet extends HttpServlet {
         try {
             ExchangeRate newRate = exchangeRateService.create(baseCurrencyCode, targetCurrencyCode, rate);
             log.info("New exchange rate created " + baseCurrencyCode + targetCurrencyCode + " " + rate);
-            json(resp, SC_CREATED, newRate);
+            ExchangeRateResponseDto exchangeRateResponseDto = ExchangeRateMapper.toDto(newRate);
+            json(resp, SC_CREATED, exchangeRateResponseDto);
         } catch (CurrencyNotFoundException e) {
             log.warning("Currency pair not found in DB: " + baseCurrencyCode + "/" + targetCurrencyCode);
             error(resp, SC_NOT_FOUND, "Одна (или обе) валюта из валютной пары не существует в БД");

@@ -1,5 +1,6 @@
 package servlet;
 
+import dto.CurrencyResponseDto;
 import exception.CurrencyAlreadyExistsException;
 import exception.InvalidCurrencyCodeException;
 import exception.InvalidCurrencySignException;
@@ -7,6 +8,7 @@ import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import mapper.CurrencyMapper;
 import model.Currency;
 import service.CurrencyService;
 
@@ -29,9 +31,9 @@ public class CurrenciesServlet extends HttpServlet {
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
         try {
             List<Currency> currencies = currencyService.findAllCurrencies();
-
+            List<CurrencyResponseDto> currenciesDto = currencies.stream().map(CurrencyMapper::toDto).toList();
             log.info("All currencies found");
-            json(resp, SC_OK, currencies);
+            json(resp, SC_OK, currenciesDto);
         } catch (Exception e) {
             log.log(Level.SEVERE, "Unexpected error while fetching all currencies", e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
@@ -53,8 +55,9 @@ public class CurrenciesServlet extends HttpServlet {
 
         try {
             Currency newCurrency = currencyService.createCurrency(name, code, sign);
+            CurrencyResponseDto currencyResponseDto = CurrencyMapper.toDto(newCurrency);
             log.info("New currency created: " + code + " " + name);
-            json(resp, HttpServletResponse.SC_CREATED, newCurrency);
+            json(resp, HttpServletResponse.SC_CREATED, currencyResponseDto);
         } catch (InvalidCurrencyCodeException e) {
             log.warning("Invalid currency code: must be 3 uppercase letters");
             error(resp, SC_BAD_REQUEST, "Код валюты должен содержать 3 заглавные буквы A-Z");

@@ -1,11 +1,13 @@
 package servlet;
 
+import dto.ExchangeRateResponseDto;
 import exception.ExchangeRateNotFoundException;
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import mapper.ExchangeRateMapper;
 import model.ExchangeRate;
 import service.ExchangeRateService;
 
@@ -47,7 +49,8 @@ public class ExchangeRateServlet extends HttpServlet {
             }
 
             log.info("Exchange rate found: " + baseCode + targetCode);
-            json(resp, SC_OK, exchangeRateOpt.get());
+            ExchangeRateResponseDto exchangeRateResponseDto = ExchangeRateMapper.toDto(exchangeRateOpt.get());
+            json(resp, SC_OK, exchangeRateResponseDto);
         } catch (Exception e) {
             log.log(Level.SEVERE, "Unexpected error while fetching exchange rate for pair: " + baseCode + "/" + targetCode, e);
             error(resp, SC_INTERNAL_SERVER_ERROR, "Внутренняя ошибка сервера");
@@ -124,7 +127,8 @@ public class ExchangeRateServlet extends HttpServlet {
 
             ExchangeRate updatedExchangeRate = exchangeRateService.updateRateByCurrencyPair(baseCode, targetCode, rate);
             log.info("Exchange rate updated " + baseCode + targetCode + " " + rate);
-            json(resp, SC_OK, updatedExchangeRate);
+            ExchangeRateResponseDto exchangeRateResponseDto = ExchangeRateMapper.toDto(updatedExchangeRate);
+            json(resp, SC_OK, exchangeRateResponseDto);
         } catch (ExchangeRateNotFoundException e) {
             log.warning("Exchange rate not found " + baseCode + targetCode);
             error(resp, SC_NOT_FOUND, "Обменный курс для пары не найден");

@@ -1,9 +1,11 @@
 package servlet;
 
+import dto.CurrencyResponseDto;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import mapper.CurrencyMapper;
 import model.Currency;
 import service.CurrencyService;
 
@@ -39,8 +41,9 @@ public class CurrencyServlet extends HttpServlet {
                 error(resp, SC_NOT_FOUND, "Валюта не найдена");
                 return;
             }
+            CurrencyResponseDto currencyResponseDto = CurrencyMapper.toDto(currency.get());
             log.info("Currency found by code: " + code);
-            json(resp, SC_OK, currency.get());
+            json(resp, SC_OK, currencyResponseDto);
 
         } catch (Exception e) {
             log.log(Level.SEVERE, "Unexpected error while fetching currency", e);
