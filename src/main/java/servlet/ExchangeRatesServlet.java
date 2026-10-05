@@ -3,6 +3,7 @@ package servlet;
 import dto.ExchangeRateResponseDto;
 import exception.CurrencyNotFoundException;
 import exception.ExchangeRateAlreadyExistsException;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -23,8 +24,18 @@ import static util.ResponseUtil.json;
 
 @WebServlet("/exchangeRates")
 public class ExchangeRatesServlet extends HttpServlet {
-    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
+    private ExchangeRateService exchangeRateService;
     private static final Logger log = Logger.getLogger(ExchangeRatesServlet.class.getName());
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.exchangeRateService = (ExchangeRateService) getServletContext().getAttribute("exchangeRateService");
+
+        if (exchangeRateService == null) {
+            throw new IllegalStateException("ExchangeRateService not found in ServletContext. Check AppInitializer.contextInitialized");
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

@@ -1,6 +1,7 @@
 package servlet;
 
 import dto.CurrencyResponseDto;
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -20,8 +21,18 @@ import static util.ResponseUtil.json;
 
 @WebServlet("/currency/*")
 public class CurrencyServlet extends HttpServlet {
-    private final CurrencyService currencyService = new CurrencyService();
+    private CurrencyService currencyService;
     private static final Logger log = Logger.getLogger(CurrencyServlet.class.getName());
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.currencyService = (CurrencyService) getServletContext().getAttribute("currencyService");
+
+        if (currencyService == null) {
+            throw new IllegalStateException("CurrencyService not found in ServletContext. Check AppInitializer.contextInitialized");
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

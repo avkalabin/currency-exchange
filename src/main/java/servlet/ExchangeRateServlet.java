@@ -22,11 +22,20 @@ import static jakarta.servlet.http.HttpServletResponse.*;
 import static util.ResponseUtil.error;
 import static util.ResponseUtil.json;
 
-
 @WebServlet("/exchangeRate/*")
 public class ExchangeRateServlet extends HttpServlet {
-    private final ExchangeRateService exchangeRateService = new ExchangeRateService();
+    private ExchangeRateService exchangeRateService;
     private static final Logger log = Logger.getLogger(ExchangeRateServlet.class.getName());
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.exchangeRateService = (ExchangeRateService) getServletContext().getAttribute("exchangeRateService");
+
+        if (exchangeRateService == null) {
+            throw new IllegalStateException("ExchangeRateService not found in ServletContext. Check AppInitializer.contextInitialized");
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {

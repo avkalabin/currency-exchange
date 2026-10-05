@@ -1,77 +1,16 @@
 package dao;
 
-import exception.DataAccessException;
 import model.Currency;
 
-import java.sql.*;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
-public class CurrencyDao {
-    public List<Currency> findAll() {
-        String sql = "SELECT id, name, code, sign FROM currencies";
-        List<Currency> currencies = new ArrayList<>();
-        try (Connection conn = DatabaseManager.getConnection();
-             Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery(sql)) {
+public interface CurrencyDao {
 
-            while (rs.next()) {
-                currencies.add(new Currency(
-                        rs.getInt("id"),
-                        rs.getString("name"),
-                        rs.getString("code"),
-                        rs.getString("sign")
-                ));
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to get currencies", e);
-        }
-        return currencies;
-    }
+    List<Currency> findAll();
 
-    public Currency create(String name, String code, String sign) {
-        String sql = "INSERT INTO currencies (name, code, sign) VALUES (?, ?, ?)";
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql, Statement.RETURN_GENERATED_KEYS)
-        ) {
-            pstmt.setString(1, name);
-            pstmt.setString(2, code);
-            pstmt.setString(3, sign);
-            pstmt.executeUpdate();
+    Currency create(String name, String code, String sign);
 
-            ResultSet generatedKeys = pstmt.getGeneratedKeys();
-            if (generatedKeys.next()) {
-                int id = generatedKeys.getInt(1);
-                return new Currency(id, name, code, sign);
-            }
+    Optional<Currency> findByCode(String code);
 
-            throw new DataAccessException("Failed to create currency ID: no generated key");
-
-        } catch (SQLException e) {
-            throw new DataAccessException("Database error while creating currency", e);
-        }
-    }
-
-    public Optional<Currency> findByCode(String code) {
-        String sql = "SELECT id, name, code, sign FROM currencies WHERE code = ?";
-        try (Connection conn = DatabaseManager.getConnection();
-             PreparedStatement pstmt = conn.prepareStatement(sql)) {
-            pstmt.setString(1, code);
-
-            try (ResultSet rs = pstmt.executeQuery()) {
-                if (rs.next()) {
-                    return Optional.of(new Currency(
-                            rs.getInt("id"),
-                            rs.getString("name"),
-                            rs.getString("code"),
-                            rs.getString("sign")
-                    ));
-                }
-                return Optional.empty();
-            }
-        } catch (SQLException e) {
-            throw new DataAccessException("Failed to find currency by code: " + code, e);
-        }
-    }
 }

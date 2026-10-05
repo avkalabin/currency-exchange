@@ -1,5 +1,6 @@
 package servlet;
 
+import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
 import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
@@ -22,8 +23,19 @@ import static util.ResponseUtil.json;
 @WebServlet("/exchange")
 public class ExchangeServlet extends HttpServlet {
 
-    private final ExchangeService exchangeService = new ExchangeService();
+    private ExchangeService exchangeService;
     private static final Logger log = Logger.getLogger(ExchangeServlet.class.getName());
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        this.exchangeService = (ExchangeService) getServletContext().getAttribute("exchangeService");
+
+        if (exchangeService == null) {
+            throw new IllegalStateException("ExchangeService not found in ServletContext. Check AppInitializer.contextInitialized");
+
+        }
+    }
 
     @Override
     protected void doGet(HttpServletRequest req, HttpServletResponse resp) throws IOException {
